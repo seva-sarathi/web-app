@@ -106,36 +106,62 @@ http {
 services:
   frontend:
     build: ./frontend
+    container_name: frontend
+    working_dir: /app
+    command: npm run dev
     ports:
       - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000
+    depends_on:
+      - backend
 
   backend:
     build: ./backend
+    container_name: backend
+    working_dir: /app
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
     ports:
       - "8000:8000"
+    volumes:
+      - ./backend:/app
+    environment:
+      DATABASE_URL: postgresql://postgres:password@postgres:5432/sevasarathi
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      - postgres
+      - redis
 
   postgres:
     image: postgres:17
+    container_name: postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
       POSTGRES_DB: sevasarathi
-    ports:
-      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
   redis:
     image: redis:7
+    container_name: redis
+    restart: unless-stopped
     ports:
       - "6379:6379"
 
   nginx:
     image: nginx:latest
+    container_name: nginx
     ports:
       - "80:80"
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
       - frontend
       - backend
@@ -175,3 +201,58 @@ docker compose logs postgres
 | Show running      | `docker ps`                      |
 | Logs              | `docker compose logs -f backend` |
 | Shell inside      | `docker exec -it backend bash`   |
+
+## Recommended workflow
+#### 1. Start only the services you need
+
+If you're working only on the backend:
+```bash
+docker compose up postgres redis
+```
+
+or in the background:
+```bash
+docker compose up -d postgres redis
+```
+
+This starts only PostgreSQL and Redis.
+
+#### 2. Run FastAPI locally
+
+Activate your virtual environment:
+```bash
+cd backend
+venv\Scripts\activate
+```
+Run:
+```bash
+uvicorn main:app --reload
+```
+Now FastAPI runs on your local machine.
+
+#### 3. Connect to Docker services
+
+Your DATABASE_URL will be slightly different depending on where FastAPI runs.
+
+If FastAPI is running locally (outside Docker)
+
+Use:
+```javascript
+DATABASE_URL=postgresql://postgres:password@localhost:5432/sevasarathi
+
+REDIS_URL=redis://localhost:6379
+```
+because Docker exposes those ports to your computer.
+
+#### If FastAPI is running inside Docker
+
+Use:
+```javascript
+DATABASE_URL=postgresql://postgres:password@postgres:5432/sevasarathi
+
+REDIS_URL=redis://redis:6379
+```
+Notice the difference:
+
+- Local FastAPI → localhost
+- Docker FastAPI → service names (postgres, redis)
