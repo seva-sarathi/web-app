@@ -1,15 +1,15 @@
-# main.py
-from fastapi import FastAPI, Depends
-from sqlalchemy.orm import Session
+from fastapi import FastAPI
+from app.core.database import engine, Base
+from app.api import auth
 
-# Import get_db from your database folder
-from app.core.database import get_db
+# Create database tables (In production, use Alembic for migrations instead of this)
+Base.metadata.create_all(bind=engine)
 
-app = FastAPI()
+app = FastAPI(title="My Auth API")
 
-@app.get("/users")
-def get_users(db: Session = Depends(get_db)):
-    # You now have access to the 'db' session here
-    # Example: users = db.query(User).all()
-    
-    return {"message": "Database connection successful"}
+# Include Routers
+app.include_router(auth.router, prefix="/auth", tags=["Authentication"])
+
+@app.get("/")
+def read_root():
+    return {"message": "Welcome to the API"}

@@ -24,10 +24,10 @@ backend/
 |   |      users.py
 |   |      controllers.py
 |   |      admin.py
-    ├── dependencies/
-            current_user.py
-            role_checker.py
-
+|   ├── dependencies/
+|   |       current_user.py
+|   |       role_checker.py
+|   |
 │   └── main.py
 │
 ├── .env
