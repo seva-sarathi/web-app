@@ -2,38 +2,16 @@ import ApiResponse from "../../utils/ApiResponse.js";
 import ApiError from "../../utils/ApiError.js";
 import asyncHandler from "../../utils/asyncHandler.js";
 
-export const getUsers = asyncHandler(async (req, res) => {
+import * as authService from "./auth.service.js";
 
-    
 
-    if (!users) {
-        throw new ApiError(404, "Users not found");
-    }
 
-    res.status(200).json(
-        new ApiResponse(
-            200,
-            "Users fetched successfully",
-            users
-        )
-    );
-});
+export const register = asyncHandler(async (req, res) => {
+  const { username, email, password } = req.body;
 
-export const login = asyncHandler(async(req,res) => {
-  const users = [];
-  res.status(200).json(
-        new ApiResponse(
-            200,
-            "User login successfully",
-            users
-        )
-    );
-})
-export function health(req, res) {
-  res.status(200).json(
-    new ApiResponse(
-      200,
-      "auth route is healthy"
-    )
+  const user = await authService.createUser(username, email, password);
+
+  res.status(201).json(
+    new ApiResponse(201, "User registered successfully", user)
   );
-}
+});

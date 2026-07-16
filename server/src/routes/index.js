@@ -1,12 +1,14 @@
 import { Router } from "express";
 
 import authRoutes from "../modules/auth/auth.routes.js";
+import healthRoute from "../modules/health/health.route.js";
 //import userRoutes from "../modules/users/user.routes.js";
 // import hospitalRoutes from "../modules/hospitals/hospital.routes.js";
 
 const router = Router();
 
 router.use("/v1/auth", authRoutes);
+router.use("/v1/health",healthRoute );
 
 router.get("/", (req, res) => {
   res.json({ message: "API is working!" });

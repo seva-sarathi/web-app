@@ -1,12 +1,15 @@
-import pkg from "pg";
-import { env } from "./env.js";
 
-const { Pool } = pkg;
+import { env } from "./env.js";
+import { Pool }  from 'pg';
 
 export const db = new Pool({
-  connectionString: env.databaseUrl,
-  ssl: { rejectUnauthorized: false }
+  user: 'postgres',
+  password: '1608',
+  host: 'localhost',
+  port: 5432, // default Postgres port
+  database: 'udemydb'
 });
+
 
 
 export async function connectDatabase() {
@@ -18,3 +21,4 @@ export async function connectDatabase() {
     process.exit(1);
   }
 }
+
