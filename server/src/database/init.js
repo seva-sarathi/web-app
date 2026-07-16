@@ -7,8 +7,8 @@ import { seedUser } from "./seed/user.seed.js";
 
 
 export const initDB = async () =>{
-    initRolesTable();
-    initUserTable();
-    seedRoles();
-    seedUser();
+    await initRolesTable();
+    await initUserTable();
+    await seedRoles();
+    await seedUser();
 }

@@ -10,7 +10,7 @@ export const initUserTable = async () => {
       password_hash TEXT NOT NULL,
       role_id INT NOT NULL REFERENCES roles(id),
       phone TEXT NOT NULL,
-      is_active BOOLEAN DEFAULT TRUE, -- Added default value
+      is_active BOOLEAN DEFAULT FALSE, -- Added default value
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
