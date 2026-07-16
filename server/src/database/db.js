@@ -1,6 +1,7 @@
 
-import { env } from "./env.js";
+import { env } from "../config/env.js";
 import { Pool }  from 'pg';
+import { initDB } from "./init.js";
 
 export const db = new Pool({
   user: 'postgres',
@@ -15,6 +16,7 @@ export const db = new Pool({
 export async function connectDatabase() {
   try {
     await db.query("SELECT NOW()");
+    initDB();
     console.log("✅ PostgreSQL Connected");
   } catch (error) {
     console.error(error);

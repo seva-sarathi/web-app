@@ -1,6 +1,6 @@
 import app from "./app.js";
 import { env } from "./config/env.js";
-import { connectDatabase } from "./config/db.js";
+import { connectDatabase } from "./database/db.js";
 
 async function startServer() {
   await connectDatabase();
