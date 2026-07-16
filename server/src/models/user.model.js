@@ -26,6 +26,15 @@ export const findUserByEmail = async (email) => {
   return result.rows[0];
 };
 
+export const findUserByUsername = async (username) => {
+  const result = await db.query(
+    "SELECT * FROM users WHERE username = $1",
+    [username]
+  );
+
+  return result.rows[0];
+};
+
 export const createUser = async ({ username, email, password, phone, role_id }) => {
   // Notice the columns here are changed to "username" and "password_hash"
   const result = await db.query(

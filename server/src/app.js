@@ -13,6 +13,6 @@ app.use("/api", routes);
 
 app.use(notFound);
 
-app.use(errorHandler);
+// app.use(errorHandler);
 
 export default app;

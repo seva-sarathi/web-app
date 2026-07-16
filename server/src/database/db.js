@@ -4,11 +4,11 @@ import { Pool }  from 'pg';
 import { initDB } from "./init.js";
 
 export const db = new Pool({
-  user: 'postgres',
-  password: '1608',
-  host: 'localhost',
-  port: 5432, // default Postgres port
-  database: 'udemydb'
+  user: env.dbUser,
+  password: env.dbPassword,
+  host: env.dbHost,
+  port: env.dbPort, // default Postgres port
+  database: env.database
 });
 
 
