@@ -22,11 +22,13 @@ export default function LoginPage() {
     try {
       const response = await apiClient.post("/auth/login", { username, password });
       const { user, accessToken } = response.data.data;
-      
+      console.log(response);
+      console.log(response.data.user);
+
       // Save to Zustand in-memory store
       setAuth(user, accessToken);
       
-      toast.success(`Welcome back, ${user.name || 'Staff'}!`);
+      toast.success(`Welcome back, ${user.username || 'Staff'}!`);
       
       // Redirect based on role
       if (user.role_name === 'CONTROLLER' || user.role_name === 'ADMIN') {

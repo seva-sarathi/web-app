@@ -179,6 +179,7 @@ export const register = asyncHandler(async (req, res) => {
 });
 
 export const login = asyncHandler(async (req, res) => {
+  console.log("hiiiiiiiii");
   const { username, password } = req.body;
 
   const { user, accessToken, refreshToken } = await authService.loginUser(
