@@ -3,7 +3,7 @@ import { createUser as createUserInDb, findUserByEmail, findUserByUsername } fro
 import { db } from "../../database/db.js";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
-
+import ApiError from "../../utils/ApiError.js";
 export const inviteUser = async (username, email, phone, role) => {
   const existingUser = await findUserByEmail(email);
   if (existingUser) {
@@ -106,5 +106,47 @@ export const loginUser = async(username, password) => {
   delete user.password_hash;
 
   return { user, accessToken, refreshToken };
+
+}
+
+export const setupPasswordService = async(token,password) =>{
+  if(!password || !token){
+    console.log("invalid");
+  }
+  console.log("hello 1");
+  let decoded;
+  
+  try {
+    // 1. Verify the token. If it was tampered with or is expired (past 24h), this throws an error.
+    decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+  } catch (err) {
+    const error = new Error("Invalid or expired setup token. Please request a new invite.");
+    error.statusCode = 400;
+    throw error;
+  }
+  console.log("hello 2");
+
+  // 2. Hash the new password the user typed
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  // 3. Update the password in the database using the ID embedded in the token
+  // 3. Update password and activate, ONLY if currently inactive
+  const result = await db.query(
+    `UPDATE users 
+     SET password_hash = $1, is_active = true 
+     WHERE id = $2 AND is_active = false 
+     RETURNING id`,
+    [hashedPassword, decoded.userId]
+  );
+
+  console.log("hello 3");
+  // If rowCount is 0, either the ID is wrong, OR the user is already active
+  if (result.rowCount === 0) {
+  throw new ApiError(400, "User not found or account has already been set up.");
+}
+
+  console.log("hello 4");
+
+  return result;
 
 }

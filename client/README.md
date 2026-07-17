@@ -34,3 +34,34 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+```r
+sevasarathi-client/
+├── public/                 # Static assets (images, fonts if downloaded)
+├── src/
+│   ├── app/                # 🌐 ROUTING LAYER
+│   │   ├── (auth)/         # Group for authentication routes (bypasses URL, so it's just /login)
+│   │   │   ├── login/
+│   │   │   │   └── page.jsx
+│   │   │   └── setup-password/
+│   │   │       └── page.jsx
+│   │   ├── (dashboard)/    # Group for protected app routes
+│   │   │   ├── admin/
+│   │   │   │   └── page.jsx
+│   │   │   └── requests/
+│   │   │       └── page.jsx
+│   │   ├── layout.jsx      # Global layout (Where we put Toastify)
+│   │   └── page.jsx        # Your Landing Page (/)
+│   │
+│   ├── components/         # 🧩 UI LAYER
+│   │   ├── ui/             # Reusable boxy components (Button, Input, Box)
+│   │   └── layout/         # Navigation (Sidebar, Topbar)
+│   │
+│   ├── lib/                # 🛠️ CONFIG LAYER
+│   │   └── axiosClient.js  # Axios setup with interceptors
+│   │
+│   └── store/              # 💾 STATE LAYER
+│       └── useAuthStore.js # Zustand store
+│
+├── tailwind.config.js
+└── next.config.js```

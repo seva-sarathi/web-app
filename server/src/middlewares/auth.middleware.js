@@ -11,6 +11,7 @@ export const verifyJWT = (req, res, next) => {
 
   try {
     const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    console.log(decodedToken);
     req.user = decodedToken; // Contains userId and role from when we created the token
     next();
   } catch (error) {
@@ -21,6 +22,7 @@ export const verifyJWT = (req, res, next) => {
 // 2. Verify if the user has the right role
 export const authorizeRoles = (...allowedRoles) => {
   return (req, res, next) => {
+    console.log(req.user)
     if (!allowedRoles.includes(req.user.role)) {
       return res.status(403).json(
         new ApiResponse(403, `Role ${req.user.role} is not allowed to perform this action`)

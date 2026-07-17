@@ -5,12 +5,16 @@ import asyncHandler from "../../utils/asyncHandler.js";
 import * as authService from "./auth.service.js";
 import { sendEmail } from "../../utils/sendEmail.js";
 
-
 export const register = asyncHandler(async (req, res) => {
   const { username, email, password, phone, role } = req.body;
 
   // 1. Create user and get token
-  const { newUser, setupToken } = await authService.inviteUser(username, email, phone, role);
+  const { newUser, setupToken } = await authService.inviteUser(
+    username,
+    email,
+    phone,
+    role,
+  );
 
   // 2. Create the frontend link (Assuming your frontend runs on localhost:3000)
   const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
@@ -18,13 +22,144 @@ export const register = asyncHandler(async (req, res) => {
 
   // 3. Send the email
   const emailHtml = `
-    <h2>Welcome to SevaSarathi</h2>
-    <p>Hello,</p>
-    <p>An administrator has created an account for you.</p>
-    <p><b>Your Username:</b> ${username}</p>
-    <p>Please click the link below to set your password and activate your account. This link expires in 24 hours.</p>
-    <a href="${setupLink}" style="padding: 10px 20px; background: #2980b9; color: white; text-decoration: none; border-radius: 5px;">Set My Password</a>
-  `;
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Set up your SevaSarathi account</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #f3f4f6;
+        font-family: Arial, Helvetica, sans-serif;
+        color: #111827;
+        -webkit-text-size-adjust: 100%;
+        -ms-text-size-adjust: 100%;
+      }
+      .preheader {
+        display: none !important;
+        visibility: hidden;
+        opacity: 0;
+        color: transparent;
+        height: 0;
+        width: 0;
+        max-height: 0;
+        max-width: 0;
+        overflow: hidden;
+      }
+      .container {
+        max-width: 640px;
+        margin: 28px auto;
+        background: #ffffff;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      }
+      .header {
+        padding: 24px 24px 16px;
+        text-align: center;
+        background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+      }
+      .logo {
+        height: 42px;
+      }
+      .content {
+        padding: 32px 28px 24px;
+      }
+      h1 {
+        font-size: 24px;
+        margin: 0 0 8px;
+        color: #0f172a;
+      }
+      p {
+        margin: 0 0 14px;
+        line-height: 1.6;
+        color: #374151;
+      }
+      .muted {
+        color: #6b7280;
+        font-size: 14px;
+      }
+      .card {
+        background: #f8fafc;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 16px;
+        margin: 20px 0;
+      }
+      .btn {
+        display: inline-block;
+        background: #2563eb;
+        color: #ffffff !important;
+        text-decoration: none;
+        padding: 12px 20px;
+        border-radius: 8px;
+        font-weight: 700;
+      }
+      .small {
+        font-size: 13px;
+        color: #4b5563;
+      }
+      .footer {
+        padding: 20px 24px 28px;
+        text-align: center;
+        font-size: 12px;
+        color: #94a3b8;
+        background: #f8fafc;
+      }
+      @media (max-width: 480px) {
+        .content { padding: 24px 18px 20px; }
+        .btn { display: block; text-align: center; }
+      }
+    </style>
+  </head>
+  <body>
+    <span class="preheader">Set your SevaSarathi password and activate your account — the link expires in 24 hours.</span>
+    <div class="container" role="article" aria-label="SevaSarathi account setup">
+      <div class="header">
+        <a href="${process.env.FRONTEND_URL || "http://localhost:3000"}" target="_blank" rel="noopener">
+          <img src="${process.env.ASSET_URL || "https://via.placeholder.com/220x48?text=SevaSarathi"}" alt="SevaSarathi" class="logo">
+        </a>
+      </div>
+
+      <div class="content">
+        <h1>Welcome to SevaSarathi</h1>
+        <p class="muted">Hello ${username}, an administrator has created an account for you.</p>
+
+        <div class="card">
+          <p class="small"><strong>Username:</strong> ${username}</p>
+          <p class="small">This setup link will expire in 24 hours.</p>
+        </div>
+
+        <p>Click the button below to create your password and activate your account.</p>
+
+        <p style="text-align:center; margin:24px 0;">
+          <a href="${setupLink}" class="btn" target="_blank" rel="noopener noreferrer">Set My Password</a>
+        </p>
+
+        <p class="small">
+          If the button does not work, copy and paste this URL into your browser:
+          <br>
+          <a href="${setupLink}" target="_blank" rel="noopener" style="color:#2563eb; word-break:break-all;">${setupLink}</a>
+        </p>
+
+        <hr style="border:none; border-top:1px solid #e5e7eb; margin:24px 0;">
+
+        <p class="small">
+          If you did not expect this email or need support, contact us at
+          <a href="mailto:${process.env.SUPPORT_EMAIL || "support@sevasarathi.example"}" style="color:#2563eb;">${process.env.SUPPORT_EMAIL || "support@sevasarathi.example"}</a>.
+        </p>
+      </div>
+
+      <div class="footer">
+        SevaSarathi — Helping communities.<br>
+        © ${new Date().getFullYear()} SevaSarathi. All rights reserved.
+      </div>
+    </div>
+  </body>
+</html>`;
 
   await sendEmail({
     to: email,
@@ -32,9 +167,15 @@ export const register = asyncHandler(async (req, res) => {
     html: emailHtml,
   });
 
-  res.status(201).json(
-    new ApiResponse(201, "User registered. Setup email sent successfully.", newUser)
-  );
+  res
+    .status(201)
+    .json(
+      new ApiResponse(
+        201,
+        "User registered. Setup email sent successfully.",
+        newUser,
+      ),
+    );
 });
 
 export const login = asyncHandler(async (req, res) => {
@@ -52,7 +193,7 @@ export const login = asyncHandler(async (req, res) => {
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
   };
 
-  res
+  return res
     .status(200)
     .cookie("refreshToken", refreshToken, cookieOptions)
     .json(
@@ -62,3 +203,21 @@ export const login = asyncHandler(async (req, res) => {
       }),
     );
 });
+
+export const setupPassword = asyncHandler( async(req,res)=>{
+  const {password, token} = req.body;
+    console.log("hello -2");
+
+  if (!password || !token) {
+    return res.status(400).json({ message: "Password and token are required" });
+  }
+  console.log("hello -1");
+
+  const user = await authService.setupPasswordService(token, password);
+    console.log("hello 0");
+
+  return res.status(200)
+          .json(
+            new ApiResponse(200, "password change successfull!")
+          );
+})

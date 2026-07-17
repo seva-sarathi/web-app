@@ -15,4 +15,6 @@ router.post(
 );
 
 router.post("/login", authController.login)
+
+router.post("/password-setup", authController.setupPassword);
 export default router;

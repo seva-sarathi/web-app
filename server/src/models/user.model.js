@@ -18,17 +18,23 @@ export const initUserTable = async () => {
 };
 
 export const findUserByEmail = async (email) => {
-  const result = await db.query(
-    "SELECT * FROM users WHERE email = $1",
-    [email]
-  );
-
-  return result.rows[0];
+  const query = `
+  SELECT u.*, r.name AS role_name 
+  FROM users u
+  JOIN roles r ON u.role_id = r.id
+  WHERE u.email = $1
+`;
+const result = await db.query(query, [email]);
+const user = result.rows[0];
+return user;
 };
 
 export const findUserByUsername = async (username) => {
   const result = await db.query(
-    "SELECT * FROM users WHERE username = $1",
+    `SELECT u.*, r.name AS role_name 
+  FROM users u
+  JOIN roles r ON u.role_id = r.id
+  WHERE u.username = $1`,
     [username]
   );
 
