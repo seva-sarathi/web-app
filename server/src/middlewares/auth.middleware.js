@@ -8,7 +8,7 @@ export const verifyJWT = (req, res, next) => {
   if (!token) {
     return res.status(401).json(new ApiResponse(401, "Unauthorized request"));
   }
-
+  console.log("yaha sahi hai")
   try {
     const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
     console.log(decodedToken);
@@ -21,6 +21,7 @@ export const verifyJWT = (req, res, next) => {
 
 // 2. Verify if the user has the right role
 export const authorizeRoles = (...allowedRoles) => {
+   console.log("yaha sahi hai")
   return (req, res, next) => {
     console.log(req.user)
     if (!allowedRoles.includes(req.user.role)) {

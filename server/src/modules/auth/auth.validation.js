@@ -3,9 +3,9 @@ import {body, validationResult} from "express-validator";
 export const registerRules = [
   body('username').notEmpty().withMessage('Username is required'),
   body('email').isEmail().withMessage('Please include a valid email'),
-  body('password')
-    .isLength({ min: 6 })
-    .withMessage('Password must be at least 6 characters long'),
+  body('phone')
+    .isLength( 10)
+    .withMessage('phone must be at 10 characters long'),
 ];
 
 export const validateRegister = (req, res, next) => {

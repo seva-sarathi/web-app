@@ -4,6 +4,7 @@ import asyncHandler from "../../utils/asyncHandler.js";
 
 import * as authService from "./auth.service.js";
 import { sendEmail } from "../../utils/sendEmail.js";
+import { db } from "../../database/db.js";
 
 export const register = asyncHandler(async (req, res) => {
   const { username, email, password, phone, role } = req.body;
