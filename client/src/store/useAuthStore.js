@@ -4,18 +4,21 @@ export const useAuthStore = create((set) => ({
   user: null,
   accessToken: null,
   isAuthenticated: false,
+  isInitializing: true, // App starts in a loading state
 
-  // Call this after a successful login
   setAuth: (user, accessToken) => set({ 
     user, 
     accessToken, 
-    isAuthenticated: true 
+    isAuthenticated: true,
+    isInitializing: false // Stop loading once auth is set
   }),
 
-  // Call this on logout
   clearAuth: () => set({ 
     user: null, 
     accessToken: null, 
-    isAuthenticated: false 
+    isAuthenticated: false,
+    isInitializing: false // Stop loading if auth fails
   }),
+  
+  setInitializing: (status) => set({ isInitializing: status })
 }));

@@ -222,3 +222,47 @@ export const setupPassword = asyncHandler( async(req,res)=>{
             new ApiResponse(200, "password change successfull!")
           );
 })
+
+import jwt from "jsonwebtoken";
+
+export const refresh = asyncHandler(async (req, res) => {
+  const incomingRefreshToken = req.cookies.refreshToken;
+
+  if (!incomingRefreshToken) {
+    return res.status(401).json(new ApiResponse(401, "Unauthorized request"));
+  }
+
+  try {
+    const decodedToken = jwt.verify(
+      incomingRefreshToken,
+      process.env.REFRESH_TOKEN_SECRET
+    );
+
+    // Fetch user details from DB using decodedToken.userId
+    const query = `
+      SELECT u.id, u.username, u.email, r.name AS role_name 
+      FROM users u
+      JOIN roles r ON u.role_id = r.id
+      WHERE u.id = $1
+    `;
+    const result = await db.query(query, [decodedToken.userId]);
+    const user = result.rows[0];
+
+    if (!user) {
+      return res.status(401).json(new ApiResponse(401, "Invalid refresh token"));
+    }
+
+    // Generate new Access Token
+    const accessToken = jwt.sign(
+      { userId: user.id, role: user.role_name },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: "15m" }
+    );
+
+    res.status(200).json(
+      new ApiResponse(200, "Access token refreshed", { user, accessToken })
+    );
+  } catch (error) {
+    return res.status(401).json(new ApiResponse(401, "Invalid or expired refresh token"));
+  }
+});

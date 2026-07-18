@@ -2,6 +2,7 @@ import { Space_Grotesk } from "next/font/google";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./globals.css"; // Tailwind imports
+import AuthProvider from "../components/provider/AuthProvider";
 
 // Configure the bold, boxy font
 const spaceGrotesk = Space_Grotesk({ 
@@ -19,8 +20,10 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={`${spaceGrotesk.className} antialiased bg-white text-black`}>
-        {children}
-        
+        {/* Wrap children in the AuthProvider */}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
         {/* Global Toastify Configuration - Boxy styling applied via Tailwind classes in toast props */}
         <ToastContainer 
           position="bottom-right"

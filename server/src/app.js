@@ -11,7 +11,10 @@ const app = express();
 app.use(express.json());
 
 app.use(cors({
-  origin: "http://localhost:3000", // EXACT URL of your Next.js frontend (no trailing slash)
+  origin: [
+    "http://localhost:3000",       // when you run frontend locally
+    "http://10.208.141.181:3000"   // when you access via phone hotspot
+  ],
   credentials: true,               // CRITICAL: Allows cookies (Refresh Tokens) to be sent/received
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
 }));
