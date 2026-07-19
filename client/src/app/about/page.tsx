@@ -19,11 +19,11 @@ interface TeamMember {
 export default function AboutPage() {
   const team: TeamMember[] = [
     { name: "Vaibhav", role: "5G Technology", gradient: "from-blue-400 to-cyan-300" },
+    { name: "Anurag Chandra", role: "Web App & Deployments", gradient: "from-amber-400 to-orange-400" },
     { name: "Sushant", role: "5G Technology", gradient: "from-cyan-400 to-teal-300" },
-    { name: "Anurag Chandra", role: "Web App & Deployments", gradient: "from-indigo-400 to-purple-400" },
     { name: "Aditya Mishra", role: "AI Models & Robotics", gradient: "from-rose-400 to-red-400" },
     { name: "Krishna", role: "Algorithms & Management", gradient: "from-fuchsia-400 to-pink-400" },
-    { name: "Anushri", role: "Robotics", gradient: "from-amber-400 to-orange-400" },
+    { name: "Anushri", role: "Robotics", gradient:  "from-indigo-400 to-purple-400"},
   ];
 
   return (
@@ -66,7 +66,7 @@ export default function AboutPage() {
             </span>
           </h1>
           <p className="max-w-2xl mx-auto text-xl text-gray-500 font-medium leading-relaxed">
-            Born at the 5G Innovation Hackathon. Engineered to revolutionize hospital logistics using edge AI and robotics under a severe hardware budget.
+            Born at the 5G Innovation Hackathon 2026. Engineered to revolutionize hospital logistics using edge AI and robotics under a severe hardware budget.
           </p>
         </div>
       </section>

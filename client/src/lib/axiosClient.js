@@ -2,7 +2,7 @@ import axios from 'axios';
 import { useAuthStore } from '../store/useAuthStore';
 
 const apiClient = axios.create({
-  baseURL: 'http://localhost:5000/api/v1',
+  baseURL: 'http://10.208.141.181:5000/api/v1',
   withCredentials: true, // Crucial: Allows backend to set the HttpOnly Refresh Cookie
   headers: {
     'Content-Type': 'application/json',

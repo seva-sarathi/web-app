@@ -14,8 +14,7 @@ import {
   FiPieChart,
   FiMenu,
   FiChevronLeft,
-  FiChevronRight,
-  FiArrowLeft
+  FiChevronRight
 } from "react-icons/fi";
 import { toast } from "react-toastify";
 import { useAuthStore } from "../../store/useAuthStore";
@@ -32,14 +31,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   // NEW: State to track if the desktop sidebar is collapsed
   const [isCollapsed, setIsCollapsed] = useState(false);
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      toast.error("Session expired. Please log in again.");
-      router.replace("/");
-    } else {
-      setIsVerifying(false);
-    }
-  }, [isAuthenticated, router]);
 
   const handleLogout = async () => {
     try {
@@ -76,17 +67,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     return links[role] || links.USER;
   }, [user]);
 
-  if (isVerifying) {
-    return (
-      <div className="h-screen w-full flex flex-col gap-4 items-center justify-center bg-gray-50 text-gray-500 font-sans">
-        <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-        <div className="text-sm font-medium tracking-wide">Verifying Session...</div>
-      </div>
-    );
-  }
+  
 
   return (
-    <div className="flex h-screen bg-gray-50 text-gray-800 font-sans overflow-hidden ">
+    <div className="flex h-screen bg-gray-50 text-gray-800 font-sans overflow-hidden">
       
       {/* SIDEBAR (Desktop) */}
       {/* Transition width smoothly between w-64 (expanded) and w-20 (collapsed) */}
@@ -182,7 +166,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </aside>
 
       {/* MAIN CONTENT AREA */}
-      <main className="flex-1 flex flex-col h-screen overflow-hidden ">
+      <main className="flex-1 flex flex-col h-screen overflow-hidden">
         
         {/* Mobile Header (Remains unchanged) */}
         <header className="md:hidden p-4 border-b border-gray-200 bg-white flex justify-between items-center z-20 shadow-sm">
@@ -202,10 +186,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </button>
           </div>
         </header>
-        
+
         {/* Mobile Dropdown Menu (Remains unchanged) */}
         {isMobileMenuOpen && (
-          <div className=" md:hidden absolute top-[73px] left-0 right-0 bg-white border-b border-gray-200 shadow-lg z-30 flex flex-col p-4 space-y-2">
+          <div className="md:hidden absolute top-[73px] left-0 right-0 bg-white border-b border-gray-200 shadow-lg z-30 flex flex-col p-4 space-y-2">
             {navLinks.map((link) => (
               <Link 
                 key={`mobile-${link.path}`}
@@ -222,7 +206,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         )}
 
         {/* Dynamic Page Content */}
-        <div className=" pl-3 flex-1 overflow-y-auto bg-gray-50">
+        <div className="flex-1 overflow-y-auto bg-gray-50">
           {children}
         </div>
       </main>
