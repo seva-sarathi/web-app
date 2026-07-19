@@ -3,6 +3,7 @@ import { Router } from "express";
 import authRoutes from "../modules/auth/auth.routes.js";
 import healthRoute from "../modules/health/health.route.js";
 import userRoutes from "../modules/user/user.routes.js";
+import dashboardRoutes from "../modules/dashboard/dashboard.routes.js"
 // import hospitalRoutes from "../modules/hospitals/hospital.routes.js";
 
 const router = Router();
@@ -15,6 +16,8 @@ router.get("/", (req, res) => {
 });
 
 router.use("/v1/users", userRoutes);
+
+router.use("/v1", dashboardRoutes)
 //router.use("/v1/users", userRoutes);
 
 //router.use("/v1/hospitals", hospitalRoutes);

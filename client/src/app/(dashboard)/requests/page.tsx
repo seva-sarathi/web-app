@@ -1,130 +1,172 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { FiArrowRight, FiBox, FiPlus, FiRefreshCw, FiTruck, FiClock, FiCheckCircle } from "react-icons/fi";
+import { useState } from "react";
+import { FiSend, FiMap, FiPackage, FiInfo } from "react-icons/fi";
 import { toast } from "react-toastify";
-import apiClient from "../../../lib/axiosClient";
-import NewRequestModal from "../.././../components/ui/NewRequestModel";
+import LiveHospitalMap from "../../../components/ui/LiveHospitalMap";
 
 export default function RequestsPage() {
-  const [requests, setRequests] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    pickup: "PHARMACY",
+    dropoff: "ICU",
+    item: "",
+  });
+  const [isDispatching, setIsDispatching] = useState(false);
+  
+  // Track the user's active delivery to filter the map
+  const [activeDelivery, setActiveDelivery] = useState(null);
 
-  const fetchRequests = async () => {
-    setIsLoading(true);
-    try {
-      // Adjust endpoint based on your backend. Fallback data used for visual structure if empty.
-      const response = await apiClient.get("/requests");
-      setRequests(response.data.data);
-    } catch (error) {
-      toast.error("Failed to load live requests.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const validLocations = ["PHARMACY", "ICU", "GENERAL_WARD", "WARD_A", "CHARGING_STATION"];
 
-  useEffect(() => {
-    fetchRequests();
+  const handleDispatch = async (e) => {
+    e.preventDefault();
     
-    // Optional: Set up a polling mechanism to refresh the board every 10 seconds
-    const interval = setInterval(fetchRequests, 10000);
-    return () => clearInterval(interval);
-  }, []);
+    if (formData.pickup === formData.dropoff) {
+      toast.error("Pickup and Drop-off locations cannot be the same.");
+      return;
+    }
 
-  // Helper to render status colors in a brutalist way
-  const renderStatus = (status) => {
-    switch (status) {
-      case "PENDING":
-        return <span className="bg-yellow-300 text-black border-2 border-black px-3 py-1 text-xs font-bold uppercase flex items-center gap-2"><FiClock /> Pending</span>;
-      case "IN_TRANSIT":
-        return <span className="bg-blue-300 text-black border-2 border-black px-3 py-1 text-xs font-bold uppercase flex items-center gap-2 animate-pulse"><FiTruck /> In Transit</span>;
-      case "COMPLETED":
-        return <span className="bg-green-300 text-black border-2 border-black px-3 py-1 text-xs font-bold uppercase flex items-center gap-2"><FiCheckCircle /> Completed</span>;
-      default:
-        return <span className="bg-gray-200 text-black border-2 border-black px-3 py-1 text-xs font-bold uppercase">{status}</span>;
+    setIsDispatching(true);
+
+    try {
+      const res = await fetch("http://localhost:4000/api/v1/dispatch", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        toast.success(`Dispatched! ${data.agv} is en route.`);
+        
+        // Save the active job details and the assigned AGV ID
+        setActiveDelivery({
+          agvId: data.agv,
+          pickup: formData.pickup,
+          dropoff: formData.dropoff,
+          item: formData.item
+        });
+        
+        // Clear the item input for the next potential request
+        setFormData({ ...formData, item: "" });
+      } else {
+        toast.error(data.error || "Failed to dispatch AGV.");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Cannot connect to the dispatch engine. Ensure it is running.");
+    } finally {
+      setIsDispatching(false);
     }
   };
 
   return (
-    <div className="max-w-7xl mx-auto font-sans text-black">
+    <div className="max-w-6xl mx-auto font-sans text-gray-800">
       
-      <NewRequestModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        onSuccess={fetchRequests} 
-      />
-
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-        <div>
-          <h1 className="text-3xl font-bold uppercase tracking-wide flex items-center gap-3">
-            <FiBox className="text-4xl" />
-            Live Deliveries
-          </h1>
-          <p className="mt-2 text-gray-600 font-semibold border-l-4 border-black pl-3">
-            Monitor and dispatch AGV logistics across the facility.
-          </p>
-        </div>
-        
-        <div className="flex gap-4">
-          <button onClick={fetchRequests} className="p-3 bg-white border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-y-1 hover:translate-x-1 transition-all">
-            <FiRefreshCw className={`text-xl ${isLoading ? "animate-spin" : ""}`} />
-          </button>
-          
-          <button onClick={() => setIsModalOpen(true)} className="flex items-center gap-2 px-6 py-3 bg-yellow-300 text-black font-bold uppercase border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:bg-white hover:shadow-none hover:translate-y-1 hover:translate-x-1 transition-all">
-            <FiPlus className="text-xl" /> Dispatch AGV
-          </button>
-        </div>
+      {/* Soft, Modern Header */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-semibold tracking-tight text-gray-900">
+          Request Delivery
+        </h1>
+        <p className="mt-2 text-gray-500">
+          Dispatch an automated vehicle and track your order in real-time.
+        </p>
       </div>
 
-      {/* Grid Display for Dispatch Tickets */}
-      {isLoading && requests.length === 0 ? (
-        <div className="text-center p-12 border-4 border-black bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] font-bold uppercase text-xl animate-pulse">
-          Connecting to Fleet...
-        </div>
-      ) : requests.length === 0 ? (
-        <div className="text-center p-12 border-4 border-black bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] font-bold uppercase text-xl">
-          No active delivery requests. Floor is clear.
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {requests.map((req) => (
-            <div key={req.id} className={`flex flex-col bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-transform hover:-translate-y-1 ${req.priority === 'URGENT' ? 'border-red-500' : ''}`}>
+      {/* Main Layout: Column on Mobile, Row on Desktop */}
+      <div className="flex flex-col lg:flex-row gap-8">
+        
+        {/* LEFT / TOP: Dispatch Form & Active Order */}
+        <div className="w-full lg:w-1/3 flex flex-col gap-6">
+          
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 md:p-8">
+            <h2 className="text-xl font-semibold mb-6 flex items-center gap-2 text-gray-900">
+              <FiSend className="text-blue-500" /> New Dispatch
+            </h2>
+            
+            <form onSubmit={handleDispatch} className="space-y-5">
               
-              {/* Card Header */}
-              <div className="p-4 border-b-4 border-black bg-gray-50 flex justify-between items-center">
-                <span className="font-bold font-mono text-lg">#{req.id.toString().padStart(4, '0')}</span>
-                {renderStatus(req.status)}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Pickup Location</label>
+                <select 
+                  value={formData.pickup}
+                  onChange={(e) => setFormData({...formData, pickup: e.target.value})}
+                  className="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 transition-all cursor-pointer"
+                >
+                  {validLocations.map(loc => (
+                    <option key={`pickup-${loc}`} value={loc}>{loc.replace("_", " ")}</option>
+                  ))}
+                </select>
               </div>
 
-              {/* Card Body */}
-              <div className="p-6 flex-1">
-                <div className="mb-6">
-                  <div className="text-xs font-bold uppercase text-gray-500 mb-1">Route</div>
-                  <div className="flex items-center gap-3 font-semibold text-lg">
-                    <span className="truncate max-w-[120px]">{req.pickup_location}</span>
-                    <FiArrowRight className="text-gray-400 shrink-0" />
-                    <span className="truncate max-w-[120px]">{req.dropoff_location}</span>
-                  </div>
-                </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Drop-off Location</label>
+                <select 
+                  value={formData.dropoff}
+                  onChange={(e) => setFormData({...formData, dropoff: e.target.value})}
+                  className="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 transition-all cursor-pointer"
+                >
+                  {validLocations.map(loc => (
+                    <option key={`dropoff-${loc}`} value={loc}>{loc.replace("_", " ")}</option>
+                  ))}
+                </select>
+              </div>
 
-                <div className="flex justify-between items-end border-t-2 border-dashed border-gray-300 pt-4 mt-auto">
-                  <div>
-                    <div className="text-xs font-bold uppercase text-gray-500 mb-1">Assigned AGV</div>
-                    <div className="font-bold text-lg uppercase">{req.agv_id || "Unassigned"}</div>
-                  </div>
-                  {req.priority === 'URGENT' && (
-                    <div className="bg-red-500 text-white border-2 border-black px-2 py-1 text-xs font-bold uppercase animate-bounce">
-                      Urgent
-                    </div>
-                  )}
-                </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Cargo Item</label>
+                <input 
+                  type="text" 
+                  value={formData.item}
+                  onChange={(e) => setFormData({...formData, item: e.target.value})}
+                  className="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                  placeholder="e.g. Blood Samples, Syringes"
+                  required
+                />
+              </div>
+
+              <button 
+                type="submit" 
+                disabled={isDispatching}
+                className="w-full mt-2 p-3.5 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center gap-2"
+              >
+                {isDispatching ? "Routing..." : "Confirm Dispatch"}
+              </button>
+            </form>
+          </div>
+
+          {/* Active Order Status Card (Only shows if they have requested something) */}
+          {activeDelivery && (
+            <div className="bg-blue-50 border border-blue-100 rounded-2xl p-6">
+              <h3 className="text-blue-800 font-semibold mb-3 flex items-center gap-2">
+                <FiPackage /> Active Order
+              </h3>
+              <div className="space-y-2 text-sm text-blue-900">
+                <p><strong>Assigned To:</strong> {activeDelivery.agvId}</p>
+                <p><strong>Route:</strong> {activeDelivery.pickup.replace("_", " ")} &rarr; {activeDelivery.dropoff.replace("_", " ")}</p>
+                <p><strong>Cargo:</strong> {activeDelivery.item}</p>
               </div>
             </div>
-          ))}
+          )}
+          
+          <div className="flex items-start gap-3 text-sm text-gray-500 px-2">
+            <FiInfo className="text-lg shrink-0 mt-0.5 text-gray-400" />
+            <p>Routes are dynamically calculated to ensure the fastest delivery time.</p>
+          </div>
         </div>
-      )}
+
+        {/* RIGHT / BOTTOM: Live Map Integration */}
+        <div className="w-full lg:w-2/3 flex flex-col h-[600px] lg:h-auto">
+          <div className="mb-4 flex items-center gap-2 px-2">
+            <FiMap className="text-gray-500 text-xl" />
+            <span className="font-semibold text-gray-700">Live Tracker</span>
+          </div>
+          
+          {/* Renders the soft, modern SVG map we just built, filtering by the assigned AGV */}
+          <LiveHospitalMap assignedAgvId={activeDelivery?.agvId} />
+        </div>
+
+      </div>
     </div>
   );
 }
