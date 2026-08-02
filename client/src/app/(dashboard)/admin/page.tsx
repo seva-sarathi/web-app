@@ -26,7 +26,7 @@ export default function AdminUsersPage() {
     try {
       const response = await apiClient.get("/users");
       setUsers(response.data.data);
-    } catch (error) {
+    } catch (error:any) {
       toast.error("Failed to load users. Please try again.");
     } finally {
       setIsLoading(false);

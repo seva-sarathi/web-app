@@ -1,9 +1,15 @@
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { FiX, FiBox, FiMapPin } from "react-icons/fi";
 import { toast } from "react-toastify";
 import apiClient from "../../lib/axiosClient";
 
-export default function NewRequestModal({ isOpen, onClose, onSuccess }) {
+type NewRequestModalProps = {
+  isOpen: boolean;
+  onClose: () => void;
+  onSuccess: () => void;
+};
+
+export default function NewRequestModal({ isOpen, onClose, onSuccess }: NewRequestModalProps) {
   const [formData, setFormData] = useState({
     pickup_location: "",
     dropoff_location: "",
@@ -13,7 +19,7 @@ export default function NewRequestModal({ isOpen, onClose, onSuccess }) {
 
   if (!isOpen) return null;
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
 
@@ -25,8 +31,16 @@ export default function NewRequestModal({ isOpen, onClose, onSuccess }) {
       setFormData({ pickup_location: "", dropoff_location: "", priority: "NORMAL" });
       onSuccess(); 
       onClose();
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to dispatch request.");
+    } catch (error: unknown) {
+      const errorResponse = error as {
+        response?: {
+          data?: {
+            message?: string;
+          };
+        };
+      };
+
+      toast.error(errorResponse.response?.data?.message || "Failed to dispatch request.");
     } finally {
       setIsLoading(false);
     }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { FiMail, FiLock, FiArrowRight, FiActivity } from "react-icons/fi";
@@ -15,7 +15,7 @@ export default function LoginPage() {
   const router = useRouter();
   const setAuth = useAuthStore((state) => state.setAuth);
 
-  const handleLogin = async (e) => {
+  const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
 
@@ -37,9 +37,17 @@ export default function LoginPage() {
         router.push("/requests");
       }
       
-    } catch (err:any) {
+    } catch (err: unknown) {
+      const errorResponse = err as {
+        response?: {
+          data?: {
+            message?: string;
+          };
+        };
+      };
+
       // Show error via Toastify instead of inline text
-      toast.error(err.response?.data?.message || "Invalid credentials. Please try again.");
+      toast.error(errorResponse.response?.data?.message || "Invalid credentials. Please try again.");
     } finally {
       setIsLoading(false);
     }

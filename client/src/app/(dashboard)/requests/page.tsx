@@ -1,9 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { FiSend, FiMap, FiPackage, FiInfo } from "react-icons/fi";
 import { toast } from "react-toastify";
 import LiveHospitalMap from "../../../components/ui/LiveHospitalMap";
+
+type ActiveDelivery = {
+  agvId: string;
+  pickup: string;
+  dropoff: string;
+  item: string;
+};
 
 export default function RequestsPage() {
   const [formData, setFormData] = useState({
@@ -14,11 +21,11 @@ export default function RequestsPage() {
   const [isDispatching, setIsDispatching] = useState(false);
   
   // Track the user's active delivery to filter the map
-  const [activeDelivery, setActiveDelivery] = useState(null);
+  const [activeDelivery, setActiveDelivery] = useState<ActiveDelivery | null>(null);
 
   const validLocations = ["PHARMACY", "ICU", "GENERAL_WARD", "WARD_A", "CHARGING_STATION"];
 
-  const handleDispatch = async (e) => {
+  const handleDispatch = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
     if (formData.pickup === formData.dropoff) {
@@ -53,7 +60,7 @@ export default function RequestsPage() {
       } else {
         toast.error(data.error || "Failed to dispatch AGV.");
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error(error);
       toast.error("Cannot connect to the dispatch engine. Ensure it is running.");
     } finally {

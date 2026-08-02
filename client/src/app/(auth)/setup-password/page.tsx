@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, Suspense, type FormEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "react-toastify";
 import { FiLock, FiCheckCircle } from "react-icons/fi";
@@ -15,7 +15,7 @@ function SetupPasswordForm() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token"); // Extracts ?token=... from URL
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!token) {
@@ -48,9 +48,17 @@ function SetupPasswordForm() {
         router.push("/login");
       }, 1500);
       
-    } catch (err) {
+    } catch (err: unknown) {
+      const errorResponse = err as {
+        response?: {
+          data?: {
+            message?: string;
+          };
+        };
+      };
+
       toast.error(
-        err.response?.data?.message || "Failed to set password. The link may have expired."
+        errorResponse.response?.data?.message || "Failed to set password. The link may have expired."
       );
     } finally {
       setIsLoading(false);

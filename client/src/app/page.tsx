@@ -16,7 +16,7 @@ export default function HomeLoginMerge() {
   const router = useRouter();
   const setAuth = useAuthStore((state) => state.setAuth);
 
-  const handleLogin = async (e) => {
+  const handleLogin = async (e:any) => {
     e.preventDefault();
     setIsLoading(true);
 
@@ -33,7 +33,7 @@ export default function HomeLoginMerge() {
         router.push("/requests");
       }
       
-    } catch (err) {
+    } catch (err:any) {
       toast.error(err.response?.data?.message || "Invalid credentials. Please try again.");
     } finally {
       setIsLoading(false);

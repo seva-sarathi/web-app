@@ -16,7 +16,7 @@ export const metadata = {
   description: "Automated Logistics for Modern Hospitals",
 };
 
-export default function RootLayout({ children }) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body className={`${spaceGrotesk.className} antialiased bg-white text-black`}>

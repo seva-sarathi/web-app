@@ -3,36 +3,58 @@
 import { useEffect, useState, useMemo } from "react";
 import { io } from "socket.io-client";
 
-export default function LiveHospitalMap({ assignedAgvId }) {
-  const [fleet, setFleet] = useState([]);
-  const [mapData, setMapData] = useState({ nodes: {}, edges: {} });
+type NodePoint = {
+  x: number;
+  y: number;
+};
+
+type MapData = {
+  nodes: Record<string, NodePoint>;
+  edges: Record<string, Record<string, unknown>>;
+};
+
+type FleetVehicle = {
+  id: string;
+  position: NodePoint;
+};
+
+export default function LiveHospitalMap({ assignedAgvId }: { assignedAgvId?: string | null }) {
+  const [fleet, setFleet] = useState<FleetVehicle[]>([]);
+  const [mapData, setMapData] = useState<MapData>({ nodes: {}, edges: {} });
   const [isConnected, setIsConnected] = useState(false);
 
   // Fetch static map layout & connect to WebSocket
   useEffect(() => {
+    let isMounted = true;
+
     fetch("http://localhost:4000/api/v1/map")
       .then((res) => res.json())
-      .then((data) => setMapData(data))
+      .then((data: MapData) => {
+        if (isMounted) {
+          setMapData(data);
+        }
+      })
       .catch((err) => console.error("Failed to load map topology:", err));
 
     const socket = io("http://localhost:4000");
 
     socket.on("connect", () => setIsConnected(true));
     socket.on("disconnect", () => setIsConnected(false));
-    
-    socket.on("fleet-update", (liveData) => {
+
+    socket.on("fleet-update", (liveData: FleetVehicle[]) => {
       setFleet(liveData);
     });
 
-    return () => socket.disconnect();
+    return () => {
+      isMounted = false;
+      socket.disconnect();
+    };
   }, []);
 
   // Process unique edges to avoid drawing lines twice
   const uniqueEdges = useMemo(() => {
-    const edgesList = [];
-    const drawn = new Set();
-
-    if (!mapData.edges || !mapData.nodes) return edgesList;
+    const edgesList: Array<{ id: string; source: NodePoint; target: NodePoint }> = [];
+    const drawn = new Set<string>();
 
     Object.entries(mapData.edges).forEach(([sourceId, targets]) => {
       Object.keys(targets).forEach((targetId) => {
@@ -47,12 +69,13 @@ export default function LiveHospitalMap({ assignedAgvId }) {
         }
       });
     });
+
     return edgesList;
   }, [mapData]);
 
   // Only show the AGV that was assigned to this user (if any)
-  const displayFleet = assignedAgvId 
-    ? fleet.filter((agv) => agv.id === assignedAgvId) 
+  const displayFleet = assignedAgvId
+    ? fleet.filter((agv) => agv.id === assignedAgvId)
     : []; // Show nothing if no order is active
 
   return (

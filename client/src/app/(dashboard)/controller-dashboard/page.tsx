@@ -55,7 +55,7 @@ export default function MasterControllerDashboard() {
 
         const summaryRes = await apiClient.get("/dashboard/summary");
         setMetrics(summaryRes.data.data);
-      } catch (error) {
+      } catch (error:any) {
         setSysHealth("OFFLINE");
         console.error("System telemetry failed to load.");
       }

@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, type ReactNode } from "react";
 import { useAuthStore } from "../../store/useAuthStore.js";
 import apiClient from "../../lib/axiosClient.js";
 
-export default function AuthProvider({ children }) {
+export default function AuthProvider({ children }:{ children: ReactNode }) {
   const { setAuth, clearAuth, isInitializing, setInitializing } = useAuthStore();
 
   useEffect(() => {
@@ -16,7 +16,7 @@ export default function AuthProvider({ children }) {
         
         // Restore memory state
         setAuth(user, accessToken);
-      } catch (error) {
+      } catch {
         // If the refresh token is missing, expired, or invalid, wipe state
         clearAuth();
       } finally {
