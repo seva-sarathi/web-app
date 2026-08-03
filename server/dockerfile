@@ -18,9 +18,9 @@ COPY . .
 
 USER nodejs
 
-EXPOSE 5000
+EXPOSE 5001
 
-ENV PORT=5000
+ENV PORT=5001
 
 # Make sure your package.json has a "start" script defined (e.g. "node src/index.js")
 CMD ["npm", "start"]
