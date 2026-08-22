@@ -1,15 +1,7 @@
-import { Space_Grotesk } from "next/font/google";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./globals.css"; // Tailwind imports
 import AuthProvider from "../components/provider/AuthProvider";
-
-// Configure the bold, boxy font
-const spaceGrotesk = Space_Grotesk({ 
-  subsets: ["latin"],
-  weight: ['400', '600', '700'],
-  variable: '--font-space',
-});
 
 export const metadata = {
   title: "SevaSarathi | AGV Management",
@@ -19,7 +11,7 @@ export const metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={`${spaceGrotesk.className} antialiased bg-white text-black`}>
+      <body className="antialiased bg-white text-black">
         {/* Wrap children in the AuthProvider */}
         <AuthProvider>
           {children}

@@ -127,7 +127,7 @@ export default function HomeLoginMerge() {
             </div>
 
             <h1 className="text-4xl md:text-6xl xl:text-7xl font-bold tracking-tighter uppercase leading-none mb-8">
-              Next-Gen <br /> Logistics <br /> Engine.
+              SevaSarathi <br /> Healthcare. <br /> Logistics. 
             </h1>
             
             <p className="text-lg md:text-xl font-semibold text-gray-700 mb-10 border-l-4 border-black pl-6 bg-white/80 py-2">
